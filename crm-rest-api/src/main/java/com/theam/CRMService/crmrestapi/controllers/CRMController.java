@@ -21,9 +21,9 @@ public class CRMController {
 	}
 
 	@GetMapping("/api/getCustomerDetails")
-	public QuickResponse GetCustomerDetails(@RequestParam int id) {
+	public QuickResponse GetCustomerDetails(@RequestParam String customerID) {
 		
-		return new QuickResponse("/api/getCustomerDetails/: "+id);
+		return new QuickResponse("/api/getCustomerDetails/: "+customerID);
 	}
 
 	@PostMapping("/api/createCustomer")
