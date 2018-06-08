@@ -1,7 +1,9 @@
 package com.theam.CRMService.crmrestapi.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.theam.CRMService.crmrestapi.models.CustomerDaoService;
 import com.theam.CRMService.crmrestapi.models.IResponse;
 import com.theam.CRMService.crmrestapi.models.QuickResponse;
 
@@ -9,25 +11,34 @@ import com.theam.CRMService.crmrestapi.models.QuickResponse;
 public class CRMController {
 	
 	
-	public IResponse GetCustomers() {
+	@Autowired
+	private CustomerDaoService CustomerService;
+	//Need to be able to mutate and get data for
+	/*
+	 * Users
+	 * Customers
+	 * 
+	 * */
+	
+	public IResponse GetCustomers(Integer startIndex,Integer limit) {
 		
-		return new QuickResponse("Getting Customers");
+		return CustomerService.GetCustomers(startIndex,limit);
 	}
 	
-	public IResponse GetCustomerDetails(String customerID) {
-		return new QuickResponse("Getting Details for Customer " + customerID);
+	public IResponse GetCustomerDetails(Integer customerID) {
+		return CustomerService.GetCustomerDetails(customerID);
 	}
 	
 	public IResponse CreateCustomer(String name, String surname) {
 		
-		return new QuickResponse("Creating customer "+name + " " + surname);
+		return CustomerService.CreateCustomer(name, surname);
 	}
 	
-	public IResponse DeleteCustomer(String customerID) {
-		return new QuickResponse("Deleting customer " + customerID);
+	public IResponse DeleteCustomer(Integer customerID) {
+		return CustomerService.DeleteCustomer(customerID);
 	}
-	public IResponse UpdateCustomer(String customerID, String newDetails) {
-		return new QuickResponse("Updating customer " + customerID + " With " + newDetails);
+	public IResponse UpdateCustomer(Integer customerID, String name,String surname) {
+		return CustomerService.UpdateCustomer(customerID, name, surname);
 	}
 	
 	public IResponse UploadImage(String customerID, String file) {

@@ -24,13 +24,13 @@ public class CRMApiRouter {
 	
 	//TODO: Add pageination
 	@GetMapping("/api/getCustomers")
-	public IResponse GetCustomers() {
+	public IResponse GetCustomers(@RequestParam Integer start, @RequestParam Integer stride) {
 		
-		return Controller.GetCustomers();
+		return Controller.GetCustomers(start,stride);
 	}
 
 	@GetMapping("/api/getCustomerDetails/{customerID}")
-	public IResponse GetCustomerDetails(@PathVariable String customerID) {
+	public IResponse GetCustomerDetails(@PathVariable Integer customerID) {
 		
 		return Controller.GetCustomerDetails(customerID);
 	}
@@ -41,12 +41,12 @@ public class CRMApiRouter {
 	}
 
 	@DeleteMapping("/api/deleteCustomer/{customerID}")
-	public IResponse DeleteCustomer(@PathVariable String customerID) {
+	public IResponse DeleteCustomer(@PathVariable Integer customerID) {
 		return Controller.DeleteCustomer(customerID);
 	}
 	@PutMapping("/api/updateCustomer/{customerID}")
-	public IResponse updateCustomer(@PathVariable String customerID,@RequestParam String details) {
-		return Controller.UpdateCustomer(customerID, details);
+	public IResponse updateCustomer(@PathVariable Integer customerID,@RequestParam String name,@RequestParam String surname) {
+		return Controller.UpdateCustomer(customerID, name,surname);
 	}
 	@PutMapping("/api/uploadPhoto/{customerID}")
 	public IResponse UploadImage(@PathVariable String customerID, @RequestParam String file) {
