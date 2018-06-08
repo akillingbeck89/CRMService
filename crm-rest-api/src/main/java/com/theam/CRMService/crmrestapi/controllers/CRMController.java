@@ -1,74 +1,59 @@
 package com.theam.CRMService.crmrestapi.controllers;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Component;
 
+import com.theam.CRMService.crmrestapi.models.IResponse;
 import com.theam.CRMService.crmrestapi.models.QuickResponse;
 
-@RestController
+@Component
 public class CRMController {
 	
-
-	///User authorised API calls
-	@GetMapping("/api/getCustomers")
-	public QuickResponse GetCustomers() {
+	
+	public IResponse GetCustomers() {
 		
-		return new QuickResponse("/api/getCustomers");
-	}
-
-	@GetMapping("/api/getCustomerDetails")
-	public QuickResponse GetCustomerDetails(@RequestParam String customerID) {
-		
-		return new QuickResponse("/api/getCustomerDetails/: "+customerID);
-	}
-
-	@PostMapping("/api/createCustomer")
-	public QuickResponse CreateCustomer(@RequestParam String name, @RequestParam String surname ) {
-		return new QuickResponse("/api/createCustomer: " + name + " " + surname);
-	}
-
-	@DeleteMapping("/api/deleteCustomer")
-	public QuickResponse DeleteCustomer(@RequestParam String customerID) {
-		return new QuickResponse("/api/deleteCustomer:"+customerID);
-	}
-	@PutMapping("/api/updateCustomer")
-	public QuickResponse updateCustomer(@RequestParam String customerID,@RequestParam String details) {
-		return new QuickResponse("/api/updateCustomer: " + customerID + ":"+details);
-	}
-	@PutMapping("/api/uploadPhoto")
-	public QuickResponse UploadImage(@RequestParam String customerID, @RequestParam String file) {
-		return new QuickResponse("/api/uploadPhoto: " + file);
+		return new QuickResponse("Getting Customers");
 	}
 	
-	//Admin authorised API calls
-	@PostMapping("/api/createUser")
-	public QuickResponse CreateUser(@RequestParam String details) {
-		return new QuickResponse("/api/createUser: " + details);
-	}
-	@DeleteMapping("/api/deleteUser")
-	public QuickResponse DeleteUser(@RequestParam String userID) {
-		return new QuickResponse("/api/deleteUser: " + userID);
-	}
-	@PutMapping("/api/updateUser")
-	public QuickResponse UpdateUser(@RequestParam String userID,@RequestParam String details) {
-		return new QuickResponse("/api/updateUser: " + userID + ":" + details);
-	}
-	@GetMapping("/api/getUsers")
-	public QuickResponse GetUsers() {
-		return new QuickResponse("/api/getUsers");
-	}
-	@PutMapping("/api/promoteUser")
-	public QuickResponse PromoteUser(@RequestParam String userID, @RequestParam int to) {
-		return new QuickResponse("/api/promoteUser: " + userID + ":" + to);
-	}
-	@PutMapping("/api/demoteUser")
-	public QuickResponse DemoteUser(@RequestParam String userID, @RequestParam int to) {
-		return new QuickResponse("/api/demoteUser: " + userID + ":" + to);
+	public IResponse GetCustomerDetails(String customerID) {
+		return new QuickResponse("Getting Details for Customer " + customerID);
 	}
 	
-
+	public IResponse CreateCustomer(String name, String surname) {
+		
+		return new QuickResponse("Creating customer "+name + " " + surname);
+	}
+	
+	public IResponse DeleteCustomer(String customerID) {
+		return new QuickResponse("Deleting customer " + customerID);
+	}
+	public IResponse UpdateCustomer(String customerID, String newDetails) {
+		return new QuickResponse("Updating customer " + customerID + " With " + newDetails);
+	}
+	
+	public IResponse UploadImage(String customerID, String file) {
+		return new QuickResponse("Uploaded image for customer: " + customerID +" :"+file);
+	}
+	
+	
+	public IResponse CreateUser(String userID, String details) {
+		return new QuickResponse("Created user " + userID + " With " + details);
+	}
+	
+	public IResponse DeleteUser(String userID) {
+		return new QuickResponse("Deleting user " + userID);
+	}
+	
+	public IResponse UpdateUser(String userID,String details) {
+		return new QuickResponse("Updating user " + userID + " With " + details);
+	}
+	public IResponse GetUsers() {
+		return new QuickResponse("Getting users");
+	}
+	
+	public IResponse PromoteUser(String userID,int to) {
+		return new QuickResponse("Promoting user " + userID + "to: " + to);
+	}
+	public IResponse DemoteUser(String userID,int to) {
+		return new QuickResponse("Demoting user " + userID + "to: " + to);
+	}
 }
