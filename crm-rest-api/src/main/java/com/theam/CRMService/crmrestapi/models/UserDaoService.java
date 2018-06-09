@@ -1,77 +1,80 @@
 package com.theam.CRMService.crmrestapi.models;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import javax.transaction.Transactional;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.theam.CRMService.crmrestapi.models.data.Users.User;
-import com.theam.CRMService.crmrestapi.models.data.Users.Users;
 
-@Service
+@Repository
+@Transactional
+@Component
 public class UserDaoService {
 	
-	private static List<User> s_users = new ArrayList<User>();
-	private static int s_count = 0;
+	Logger log = LoggerFactory.getLogger(this.getClass().getName());
+	@PersistenceContext
+	private EntityManager m_entityManager;
+
 	public ResponseEntity<Object> CreateUser(User puser) {
 		
-		User user = new User(s_count++,puser.getUserName(),puser.getPassWord(),puser.getHasAdminRights());
-		s_users.add(user);
-		
-		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(user.getId()).toUri();
-		return ResponseEntity.created(location).build();
+		try {
+			m_entityManager.persist(puser);
+			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(puser.getId()).toUri();
+			
+			return ResponseEntity.created(location).build();
+		}
+		catch(Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
+
 	}
-	
-	/*TO REPLACE WITH ACTUAL DB*/
+
 	public ResponseEntity<Object> GetUsers(int start,int stride){
 
 		try {
-		return ResponseEntity.ok(new Users(s_users.subList(start, start+stride)));
+			Query query = m_entityManager.createQuery("SELECT user FROM User user").setFirstResult(start).setMaxResults(stride);
+			return ResponseEntity.ok(query.getResultList());
 		}
-		catch(IndexOutOfBoundsException e) {
+		catch(Exception e) {
 			return ResponseEntity.noContent().build();
 		}
 	}
 
-	public ResponseEntity<Object> DeleteUser(int id) {
-		Iterator<User> itr = s_users.iterator();
-		while(itr.hasNext()){
-			User user = itr.next();
-			if(user.getId()==id) {
-				itr.remove();
-				return ResponseEntity.accepted().body(user);
-			}
-		}
+	public ResponseEntity<Object> DeleteUser(long id) {
 		
-		return ResponseEntity.notFound().build();
-	}
-	public ResponseEntity<Object> PromoteUser(int id,int to) {
-		for(User user:s_users) {
-			if(user.getId()==id) {
-				user.setHasAdminRights(to > 0);
-				return ResponseEntity.ok(user);
-			}
+		try {
+			User user = (User)m_entityManager.find(User.class, id);
+			m_entityManager.remove(user);
+			return ResponseEntity.accepted().build();
 		}
-		
-		return ResponseEntity.notFound().build();
+		catch(IllegalArgumentException e) {
+			return ResponseEntity.notFound().build();
+		}
+	
 	}
 
-	public ResponseEntity<Object> UpdateUser(int id, String username, String password,boolean giveAdminRights) {
+	public ResponseEntity<Object> UpdateUser(long id, String username, String password,boolean giveAdminRights) {
 
-		for(User user:s_users) {
-		if(user.getId()==id) {
-				user.setUserName(username != null ? username : user.getUserName());
-				user.setPassWord(password != null ? password : user.getPassWord());
-				user.setHasAdminRights(giveAdminRights);
-				return ResponseEntity.ok().body(user);
-			}
+		try {
+			User user= (User)m_entityManager.find(User.class, id);
+			user.setUserName(username != null ? username : user.getUserName());
+			user.setPassWord(password != null ? password : user.getPassWord());
+			user.setHasAdminRights(giveAdminRights);
+			return ResponseEntity.ok().body(user);
 		}
-		
-		return ResponseEntity.notFound().build();
+		catch(Exception e) {
+			return ResponseEntity.notFound().build();
+		}
+
 	}
 
 }

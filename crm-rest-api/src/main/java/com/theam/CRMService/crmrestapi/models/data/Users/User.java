@@ -1,8 +1,17 @@
 package com.theam.CRMService.crmrestapi.models.data.Users;
 
-//A user can have access to a limited number of API functionality
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
 public class User{
-	private int m_id;
+	
+	@Id
+	@GeneratedValue
+	private long m_id;
 	
 	private String m_userName;
 	private String m_passWord;
@@ -12,7 +21,7 @@ public class User{
 		
 	}
 	
-	public User(int id, String userName, String passWord,Boolean hasAdminRights) {
+	public User(long id, String userName, String passWord,Boolean hasAdminRights) {
 		m_id = id;
 		m_userName = userName;
 		m_passWord = passWord;
@@ -26,10 +35,10 @@ public class User{
 		m_hasAdminRights = b;
 	}
 	
-	public int getId() {
+	public long getId() {
 		return m_id;
 	}
-	public void setId(int id) {
+	public void setId(long id) {
 		m_id = id;
 	}
 	public String getUserName() {

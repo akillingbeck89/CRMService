@@ -2,129 +2,125 @@ package com.theam.CRMService.crmrestapi.models;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.transaction.Transactional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.theam.CRMService.crmrestapi.models.data.customers.Customer;
-import com.theam.CRMService.crmrestapi.models.data.customers.Customers;
 import com.theam.CRMService.crmrestapi.utils.FileStorageService;
 
-@Service
+@Repository
+@Transactional
+@Component
 public class CustomerDaoService {
 	
 	@Autowired
 	private FileStorageService FileStorage;
-	//TODO: Replace static list with Db access
-	private static List<Customer> s_customers = new ArrayList<Customer>();
-	private static Integer s_count = 0;
+	Logger log = LoggerFactory.getLogger(this.getClass().getName());
+	@PersistenceContext
+	private EntityManager m_entityManager;
 
-	/*TO REPLACE WITH ACTUAL DB*/
 	public ResponseEntity<Object> GetCustomers(int start,int stride){
 		try {
-			return ResponseEntity.ok().body(new Customers(s_customers.subList(start, start+stride)));
+			Query query = m_entityManager.createQuery("SELECT customer FROM Customer customer").setFirstResult(start).setMaxResults(stride);
+			return ResponseEntity.ok(query.getResultList());
 		}
-		catch(IndexOutOfBoundsException e) {
+		catch(Exception e) {
 			return ResponseEntity.noContent().build();
 		}
 	}
 	
-	public ResponseEntity<Object> DeleteCustomerPhoto(int customerID){
-		if(doesCustomerExist(customerID)) {
-
-			for(Customer customer:s_customers) {
-				if(customer.getId()==customerID) {
-					try {
-						FileStorage.deleteFile(customer.getPhotoPath().toURI());
-						customer.setPhotoPath(null);
-						return ResponseEntity.accepted().build();
-					}
-					catch(Exception e) {
-						return ResponseEntity.badRequest().build();
-					}
+	public ResponseEntity<Object> DeleteCustomerPhoto(long customerID){
+			try {
+				Customer customer = (Customer)m_entityManager.find(Customer.class, customerID);
+				try {
+					FileStorage.deleteFile(customer.getPhotoPath().toURI());
+					customer.setPhotoPath(null);
+					return ResponseEntity.accepted().build();
+				}
+				catch(Exception e) {
+					return ResponseEntity.badRequest().build();
 				}
 			}
-			
-		}
-		
-		return ResponseEntity.noContent().build();
+			catch(Exception e) {
+				return ResponseEntity.badRequest().build();
+			}
+
 	}
-	public ResponseEntity<Object> UpdateCustomerPhoto(int customerID,MultipartFile file) {
-		if(doesCustomerExist(customerID)) {
+	public ResponseEntity<Object> UpdateCustomerPhoto(long customerID,MultipartFile file) {
+		
+		try {
+			Customer customer = (Customer)m_entityManager.find(Customer.class, customerID);
 			try {
-					URI uri = FileStorage.store(file,"customers",String.valueOf(customerID));
-					for(Customer customer:s_customers) {
-						if(customer.getId()==customerID) {
-							customer.setPhotoPath(uri.toURL());
-							return ResponseEntity.created(uri).build();
-						}
-					}
-			} 
-			catch (IOException e) {
+				URI uri = FileStorage.store(file,"customers",String.valueOf(customerID));
+				customer.setPhotoPath(uri.toURL());
+				return ResponseEntity.created(uri).build();
+			}
+			catch(IOException e) {
 				return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
 			}
+		}
+		catch(Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
+	}
+	public ResponseEntity<Object> CreateCustomer(Customer customer) {
+		try {
+			m_entityManager.persist(customer);
+			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(customer.getId()).toUri();
+			
+			return ResponseEntity.created(location).build();
+		}
+		catch(Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
+	}
 
-		}
+	public ResponseEntity<Object> DeleteCustomer(long id) {
 		
-		return ResponseEntity.notFound().build();
-	}
-	public ResponseEntity<Object> CreateCustomer(String name, String surname,String email) {
-		Customer customer = new Customer(s_count++,name,surname,email);
-		s_customers.add(customer);
-		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(customer.getId()).toUri();
-		return ResponseEntity.created(location).build();
+		try {
+			Customer customer = (Customer)m_entityManager.find(Customer.class, id);
+			m_entityManager.remove(customer);
+			return ResponseEntity.accepted().build();
+		}
+		catch(IllegalArgumentException e) {
+			return ResponseEntity.notFound().build();
+		}
 	
 	}
+	
+	public ResponseEntity<Object> GetCustomerDetails(long id) {
+		try {
+			Customer customer = (Customer)m_entityManager.find(Customer.class, id);
+			return ResponseEntity.ok(customer);
+		}
+		catch(IllegalArgumentException e) {
+			return ResponseEntity.notFound().build();
+		}
+	}
+	
+	public ResponseEntity<Object> UpdateCustomer(long id, String name, String surname) {
 
-	public ResponseEntity<Object> DeleteCustomer(int id) {
-		
-		Iterator<Customer> itr = s_customers.iterator();
-		while(itr.hasNext()) {
-			Customer customer = itr.next();
-			if(customer.getId()==id) {
-				itr.remove();
-				return ResponseEntity.accepted().body(customer);
-			}
+		try {
+			Customer customer= (Customer)m_entityManager.find(Customer.class, id);
+			customer.setForeName(customer != null ? name : customer.getForeName());
+			customer.setSurName(customer != null ? surname : customer.getSurName());
+			return ResponseEntity.ok().body(customer);
 		}
-		return ResponseEntity.notFound().build();
-	}
-	
-	public boolean doesCustomerExist(int id) {
-		for(Customer customer:s_customers) {
-			if(customer.getId()==id) {
-				return true;
-			}
+		catch(Exception e) {
+			return ResponseEntity.notFound().build();
 		}
-		
-		return false;
-	}
-	public ResponseEntity<Object> GetCustomerDetails(int id) {
-		for(Customer customer:s_customers) {
-			if(customer.getId() == id) {
-				return ResponseEntity.ok(customer);
-			}
-		}
-		return ResponseEntity.notFound().build();
-	}
-	
-	public ResponseEntity<Object> UpdateCustomer(int id, String name, String surname) {
-		for(Customer customer:s_customers) {
-			if(customer.getId()==id) {
-				customer.setSurName(surname != null ? surname : customer.getSurName());
-				customer.setForeName(name != null ? name : customer.getForeName());
-				
-				return ResponseEntity.ok(customer);
-			}
-		}
-		
-		return ResponseEntity.notFound().build();
 	}
 }

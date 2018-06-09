@@ -2,8 +2,17 @@ package com.theam.CRMService.crmrestapi.models.data.customers;
 
 import java.net.URL;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
 public class Customer{
-	private Integer m_id;
+	
+	@Id
+	@GeneratedValue
+	private long m_id;
 	private String m_foreName;
 	private String m_surName;
 	private URL m_photoPath;
@@ -13,7 +22,7 @@ public class Customer{
 	protected Customer() {
 		
 	}
-	public Customer(Integer id, String foreName, String surName,String email) {
+	public Customer(long id, String foreName, String surName,String email) {
 		m_id = id;
 		m_foreName = foreName;
 		m_surName = surName;
@@ -34,7 +43,7 @@ public class Customer{
 		m_photoPath = photoPath;
 	}
 
-	public Integer getId() {
+	public long getId() {
 		return m_id;
 	}
 	

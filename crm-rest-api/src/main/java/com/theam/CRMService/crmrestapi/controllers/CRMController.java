@@ -28,27 +28,27 @@ public class CRMController {
 		return CustomerService.GetCustomers(startIndex,limit);
 	}
 	
-	public ResponseEntity<Object> GetCustomerDetails(int id) {
+	public ResponseEntity<Object> GetCustomerDetails(long id) {
 		return CustomerService.GetCustomerDetails(id);
 	}
 	
 	public ResponseEntity<Object> CreateCustomer(Customer customer) {
 		
-		return CustomerService.CreateCustomer(customer.getForeName(), customer.getSurName(),customer.getEmail());
+		return CustomerService.CreateCustomer(customer);
 	}
 	
-	public ResponseEntity<Object> DeleteCustomer(int id) {
+	public ResponseEntity<Object> DeleteCustomer(long id) {
 		return CustomerService.DeleteCustomer(id);
 	}
-	public ResponseEntity<Object> UpdateCustomer(int id, Customer customer) {
+	public ResponseEntity<Object> UpdateCustomer(long id, Customer customer) {
 		return CustomerService.UpdateCustomer(id, customer.getForeName(), customer.getSurName());
 	}
 	
-	public ResponseEntity<Object> UploadCustomerPhoto(int id, MultipartFile file) {
+	public ResponseEntity<Object> UploadCustomerPhoto(long id, MultipartFile file) {
 		
 		return CustomerService.UpdateCustomerPhoto(id, file);
 	}
-	public ResponseEntity<Object> DeleteCustomerPhoto(int id){
+	public ResponseEntity<Object> DeleteCustomerPhoto(long id){
 		return CustomerService.DeleteCustomerPhoto(id);
 	}
 	
@@ -57,11 +57,11 @@ public class CRMController {
 		return UserService.CreateUser(user);
 	}
 	
-	public ResponseEntity<Object> DeleteUser(int id) {
+	public ResponseEntity<Object> DeleteUser(long id) {
 		return UserService.DeleteUser(id);
 	}
 	
-	public ResponseEntity<Object> UpdateUser(int id, User user) {
+	public ResponseEntity<Object> UpdateUser(long id, User user) {
 		return UserService.UpdateUser(id, user.getUserName(), user.getPassWord(), user.getHasAdminRights());
 	}
 	public ResponseEntity<Object> GetUsers(Integer start, Integer stride) {

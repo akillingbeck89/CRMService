@@ -37,25 +37,26 @@ public class CRMApiRouter {
 	}
 
 	@GetMapping("/api/customers/{id}")
-	public ResponseEntity<Object> GetCustomerDetails(@PathVariable Integer id) {
+	public ResponseEntity<Object> GetCustomerDetails(@PathVariable long id) {
 		
 		return Controller.GetCustomerDetails(id);
 	}
 	@DeleteMapping("/api/customers/{id}")
-	public ResponseEntity<Object> DeleteCustomer(@PathVariable Integer id) {
+	public ResponseEntity<Object> DeleteCustomer(@PathVariable long id) {
 		return Controller.DeleteCustomer(id);
 	}
 	
 	@PutMapping("/api/customers/{id}")
-	public ResponseEntity<Object> UpdateCustomer(@PathVariable Integer id,@RequestBody Customer customer) {
+	public ResponseEntity<Object> UpdateCustomer(@PathVariable long id,@RequestBody Customer customer) {
+		
 		return Controller.UpdateCustomer(id,customer);
 	}
 	@PutMapping("/api/customers/{id}/photo")
-	public ResponseEntity<Object> UploadImage(@PathVariable Integer id, @RequestParam MultipartFile file) {
+	public ResponseEntity<Object> UploadImage(@PathVariable long id, @RequestParam MultipartFile file) {
 		return Controller.UploadCustomerPhoto(id, file);
 	}
 	@DeleteMapping("/api/customers/{id}/photo")
-	public ResponseEntity<Object> DeleteImage(@PathVariable Integer id){
+	public ResponseEntity<Object> DeleteImage(@PathVariable long id){
 		return Controller.DeleteCustomerPhoto(id);
 	}
 	
@@ -70,11 +71,11 @@ public class CRMApiRouter {
 	}
 	
 	@DeleteMapping("/api/users/{id}")
-	public ResponseEntity<Object> DeleteUser(@PathVariable Integer id) {
+	public ResponseEntity<Object> DeleteUser(@PathVariable long id) {
 		return Controller.DeleteUser(id);
 	}
 	@PutMapping("/api/users/{id}")
-	public ResponseEntity<Object> UpdateUser(@PathVariable Integer id, @RequestBody User user) {
+	public ResponseEntity<Object> UpdateUser(@PathVariable long id, @RequestBody User user) {
 		return Controller.UpdateUser(id,user);
 	}
 	
