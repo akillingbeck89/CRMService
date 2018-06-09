@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,9 +64,12 @@ public class CRMApiRouter {
 	 * 
 	 */
 	@PostMapping("/api/createUser/")
-	public IResponse CreateUser(@RequestParam String userName, @RequestParam String password, @RequestParam boolean giveAdminRights) {
+	public IResponse CreateUser(@RequestParam String userName, 
+			@RequestParam String password, 
+			@RequestParam boolean giveAdminRights) {
 		return Controller.CreateUser(userName, password,giveAdminRights);
 	}
+
 	@DeleteMapping("/api/deleteUser/{userID}")
 	public IResponse DeleteUser(@PathVariable Integer userID) {
 		return Controller.DeleteUser(userID);

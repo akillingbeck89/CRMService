@@ -39,7 +39,7 @@ public class CustomerDaoService {
 					URI uri = FileStorage.store(file,"customers",String.valueOf(customerID));
 					for(Customer customer:s_customers) {
 						if(customer.getId()==customerID) {
-							customer.setPhotoPath(uri);
+							customer.setPhotoPath(uri.toURL());
 							return customer;
 						}
 					}

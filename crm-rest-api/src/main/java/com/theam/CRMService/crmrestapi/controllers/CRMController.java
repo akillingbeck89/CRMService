@@ -51,7 +51,7 @@ public class CRMController {
 	public IResponse CreateUser(String username, String password,boolean giveAdminRights) {
 		return UserService.CreateUser(username, password,giveAdminRights);
 	}
-	
+
 	public IResponse DeleteUser(Integer userID) {
 		return UserService.DeleteUser(userID);
 	}
