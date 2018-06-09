@@ -1,9 +1,9 @@
 package com.theam.CRMService.crmrestapi.models.data.Users;
 
-
 //A user can have access to a limited number of API functionality
 public class User{
 	private int m_id;
+	
 	private String m_userName;
 	private String m_passWord;
 	private boolean m_hasAdminRights;

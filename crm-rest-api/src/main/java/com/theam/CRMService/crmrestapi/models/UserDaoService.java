@@ -2,6 +2,7 @@ package com.theam.CRMService.crmrestapi.models;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -37,9 +38,11 @@ public class UserDaoService {
 	}
 
 	public ResponseEntity<Object> DeleteUser(int id) {
-		for(User user:s_users) {
+		Iterator<User> itr = s_users.iterator();
+		while(itr.hasNext()){
+			User user = itr.next();
 			if(user.getId()==id) {
-				s_users.remove(user);
+				itr.remove();
 				return ResponseEntity.accepted().body(user);
 			}
 		}

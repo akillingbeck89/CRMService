@@ -3,6 +3,7 @@ package com.theam.CRMService.crmrestapi.models;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ public class CustomerDaoService {
 	
 	public ResponseEntity<Object> DeleteCustomerPhoto(int customerID){
 		if(doesCustomerExist(customerID)) {
+
 			for(Customer customer:s_customers) {
 				if(customer.getId()==customerID) {
 					try {
@@ -83,13 +85,15 @@ public class CustomerDaoService {
 	}
 
 	public ResponseEntity<Object> DeleteCustomer(int id) {
-		for(Customer customer:s_customers) {
+		
+		Iterator<Customer> itr = s_customers.iterator();
+		while(itr.hasNext()) {
+			Customer customer = itr.next();
 			if(customer.getId()==id) {
-				s_customers.remove(customer);
+				itr.remove();
 				return ResponseEntity.accepted().body(customer);
 			}
 		}
-
 		return ResponseEntity.notFound().build();
 	}
 	
