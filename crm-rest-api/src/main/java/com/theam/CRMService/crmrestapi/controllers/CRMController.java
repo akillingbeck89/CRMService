@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.theam.CRMService.crmrestapi.models.CustomerDaoService;
 import com.theam.CRMService.crmrestapi.models.IResponse;
 import com.theam.CRMService.crmrestapi.models.QuickResponse;
+import com.theam.CRMService.crmrestapi.models.UserDaoService;
 
 @Component
 public class CRMController {
@@ -16,14 +17,10 @@ public class CRMController {
 	Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	@Autowired
 	private CustomerDaoService CustomerService;
+	@Autowired
+	private UserDaoService UserService;
 
-	//Need to be able to mutate and get data for
-	/*
-	 * Users
-	 * Customers
-	 * 
-	 * */
-	
+
 	public IResponse GetCustomers(Integer startIndex,Integer limit) {
 		
 		return CustomerService.GetCustomers(startIndex,limit);
@@ -51,25 +48,19 @@ public class CRMController {
 	}
 	
 	
-	public IResponse CreateUser(String userID, String details) {
-		return new QuickResponse("Created user " + userID + " With " + details);
+	public IResponse CreateUser(String username, String password,boolean giveAdminRights) {
+		return UserService.CreateUser(username, password,giveAdminRights);
 	}
 	
-	public IResponse DeleteUser(String userID) {
-		return new QuickResponse("Deleting user " + userID);
+	public IResponse DeleteUser(Integer userID) {
+		return UserService.DeleteUser(userID);
 	}
 	
-	public IResponse UpdateUser(String userID,String details) {
-		return new QuickResponse("Updating user " + userID + " With " + details);
+	public IResponse UpdateUser(Integer userID ,String username,String password,Boolean giveAdminRights) {
+		return UserService.UpdateUser(userID, username, password, giveAdminRights);
 	}
-	public IResponse GetUsers() {
-		return new QuickResponse("Getting users");
+	public IResponse GetUsers(Integer start, Integer stride) {
+		return UserService.GetUsers(start, stride);
 	}
 	
-	public IResponse PromoteUser(String userID,int to) {
-		return new QuickResponse("Promoting user " + userID + "to: " + to);
-	}
-	public IResponse DemoteUser(String userID,int to) {
-		return new QuickResponse("Demoting user " + userID + "to: " + to);
-	}
 }

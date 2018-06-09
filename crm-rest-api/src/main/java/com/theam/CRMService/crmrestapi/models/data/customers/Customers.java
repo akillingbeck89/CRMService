@@ -1,4 +1,4 @@
-package com.theam.CRMService.crmrestapi.models.data;
+package com.theam.CRMService.crmrestapi.models.data.customers;
 
 import java.util.List;
 

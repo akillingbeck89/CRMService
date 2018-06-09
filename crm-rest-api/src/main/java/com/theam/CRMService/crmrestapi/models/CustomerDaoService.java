@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.theam.CRMService.crmrestapi.models.data.Customer;
-import com.theam.CRMService.crmrestapi.models.data.Customers;
+import com.theam.CRMService.crmrestapi.models.data.customers.Customer;
+import com.theam.CRMService.crmrestapi.models.data.customers.Customers;
 import com.theam.CRMService.crmrestapi.utils.FileStorageService;
 
 @Service
@@ -92,8 +92,8 @@ public class CustomerDaoService {
 	public IResponse UpdateCustomer(int id, String name, String surname) {
 		for(Customer customer:s_customers) {
 			if(customer.getId()==id) {
-				customer.setSurName(surname);
-				customer.setForeName(name);
+				customer.setSurName(surname != null ? surname : customer.getSurName());
+				customer.setForeName(name != null ? name : customer.getForeName());
 				
 				return customer;
 			}

@@ -45,12 +45,16 @@ public class CRMApiRouter {
 		return Controller.DeleteCustomer(customerID);
 	}
 	@PutMapping("/api/updateCustomer/{customerID}")
-	public IResponse updateCustomer(@PathVariable Integer customerID,@RequestParam String name,@RequestParam String surname) {
+	public IResponse updateCustomer(@PathVariable Integer customerID,
+			@RequestParam(required=false) String name,
+			@RequestParam(required=false) String surname) {
 		return Controller.UpdateCustomer(customerID, name,surname);
 	}
 	@PutMapping("/api/uploadPhoto/{customerID}")
 	public IResponse UploadImage(@PathVariable Integer customerID, @RequestParam MultipartFile file) {
 		return Controller.UploadCustomerPhoto(customerID, file);
+		
+		
 	}
 	
 	/*
@@ -58,31 +62,25 @@ public class CRMApiRouter {
 	 * 
 	 * 
 	 */
-	@PostMapping("/api/createUser/{userID}")
-	public IResponse CreateUser(@PathVariable String userID, @RequestParam String details) {
-		return Controller.CreateUser(userID, details);
+	@PostMapping("/api/createUser/")
+	public IResponse CreateUser(@RequestParam String userName, @RequestParam String password, @RequestParam boolean giveAdminRights) {
+		return Controller.CreateUser(userName, password,giveAdminRights);
 	}
 	@DeleteMapping("/api/deleteUser/{userID}")
-	public IResponse DeleteUser(@PathVariable String userID) {
+	public IResponse DeleteUser(@PathVariable Integer userID) {
 		return Controller.DeleteUser(userID);
 	}
 	@PutMapping("/api/updateUser/{userID}")
-	public IResponse UpdateUser(@PathVariable String userID,@RequestParam String details) {
-		return Controller.UpdateUser(userID, details);
+	public IResponse UpdateUser(@PathVariable Integer userID,
+			@RequestParam(required=false) String username, 
+			@RequestParam(required=false) String password,
+			@RequestParam boolean giveAdminRights) {
+		return Controller.UpdateUser(userID, username,password,giveAdminRights);
 	}
 	
-	//TODO: Add pageination
 	@GetMapping("/api/getUsers")
-	public IResponse GetUsers() {
-		return Controller.GetUsers();
+	public IResponse GetUsers(@RequestParam Integer start, @RequestParam Integer stride) {
+		return Controller.GetUsers(start,stride);
 	}
-	@PutMapping("/api/promoteUser/{userID}")
-	public IResponse PromoteUser(@PathVariable String userID, @RequestParam int to) {
-		return Controller.PromoteUser(userID, to);
-	}
-	@PutMapping("/api/demoteUser/{userID}")
-	public IResponse DemoteUser(@PathVariable String userID, @RequestParam int to) {
-		return Controller.DemoteUser(userID, to);
-	}
-	
+
 }

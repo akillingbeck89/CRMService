@@ -1,4 +1,4 @@
-package com.theam.CRMService.crmrestapi.models.data;
+package com.theam.CRMService.crmrestapi.models.data.customers;
 
 import java.net.URI;
 
@@ -10,6 +10,7 @@ public class Customer implements IResponse{
 	private String m_surName;
 	private URI m_photoPath;
 	private String m_email;
+	
 
 	public Customer(Integer id, String foreName, String surName,String email) {
 		m_id = id;
