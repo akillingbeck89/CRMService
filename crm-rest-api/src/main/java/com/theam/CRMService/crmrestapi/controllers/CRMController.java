@@ -1,7 +1,10 @@
 package com.theam.CRMService.crmrestapi.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.theam.CRMService.crmrestapi.models.CustomerDaoService;
 import com.theam.CRMService.crmrestapi.models.IResponse;
@@ -10,9 +13,10 @@ import com.theam.CRMService.crmrestapi.models.QuickResponse;
 @Component
 public class CRMController {
 	
-	
+	Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	@Autowired
 	private CustomerDaoService CustomerService;
+
 	//Need to be able to mutate and get data for
 	/*
 	 * Users
@@ -29,9 +33,9 @@ public class CRMController {
 		return CustomerService.GetCustomerDetails(customerID);
 	}
 	
-	public IResponse CreateCustomer(String name, String surname) {
+	public IResponse CreateCustomer(String name, String surname,String email) {
 		
-		return CustomerService.CreateCustomer(name, surname);
+		return CustomerService.CreateCustomer(name, surname,email);
 	}
 	
 	public IResponse DeleteCustomer(Integer customerID) {
@@ -41,8 +45,9 @@ public class CRMController {
 		return CustomerService.UpdateCustomer(customerID, name, surname);
 	}
 	
-	public IResponse UploadImage(String customerID, String file) {
-		return new QuickResponse("Uploaded image for customer: " + customerID +" :"+file);
+	public IResponse UploadCustomerPhoto(Integer customerID, MultipartFile file) {
+		
+		return CustomerService.UpdateCustomerPhoto(customerID, file);
 	}
 	
 	

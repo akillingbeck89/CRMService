@@ -1,26 +1,34 @@
 package com.theam.CRMService.crmrestapi.models.data;
 
+import java.net.URI;
+
 import com.theam.CRMService.crmrestapi.models.IResponse;
 
 public class Customer implements IResponse{
 	private Integer m_id;
 	private String m_foreName;
 	private String m_surName;
-	private String m_photoPath;
-	
+	private URI m_photoPath;
+	private String m_email;
 
-	public Customer(Integer id, String foreName, String surName, String photoPath) {
+	public Customer(Integer id, String foreName, String surName,String email) {
 		m_id = id;
 		m_foreName = foreName;
 		m_surName = surName;
-		m_photoPath = photoPath;
+		m_email =email;
 	}
 
-	public String getPhotoPath() {
+	public String getEmail() {
+		return m_email;
+	}
+	public void setEmail(String email) {
+		m_email = email;
+	}
+	public URI getPhotoPath() {
 		return m_photoPath;
 	}
 
-	public void setPhotoPath(String photoPath) {
+	public void setPhotoPath(URI photoPath) {
 		m_photoPath = photoPath;
 	}
 

@@ -1,29 +1,27 @@
 package com.theam.CRMService.crmrestapi.models;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.theam.CRMService.crmrestapi.models.data.Customer;
 import com.theam.CRMService.crmrestapi.models.data.Customers;
-
+import com.theam.CRMService.crmrestapi.utils.FileStorageService;
 
 @Service
 public class CustomerDaoService {
 	
+	@Autowired
+	private FileStorageService FileStorage;
 	//TODO: Replace static list with Db access
 	private static List<Customer> s_customers = new ArrayList<Customer>();
 	private static Integer s_count = 0;
-	
-	static {
-		//Mock data
-		for(int i=0;i<10;i++) {
-			s_customers.add(new Customer(i,String.format("Name %s", i),String.format("Fname %s", i-1),"photouri"));
-			s_count++;
-		}
-	}
-	
+
 	/*TO REPLACE WITH ACTUAL DB*/
 	public IResponse GetCustomers(int start,int stride){
 		try {
@@ -34,8 +32,28 @@ public class CustomerDaoService {
 		}
 	}
 	
-	public IResponse CreateCustomer(String name, String surname) {
-		Customer customer = new Customer(s_count++,name,surname,"photourl");
+	public IResponse UpdateCustomerPhoto(int customerID,MultipartFile file) {
+		
+		if(doesCustomerExist(customerID)) {
+			try {
+					URI uri = FileStorage.store(file,"customers",String.valueOf(customerID));
+					for(Customer customer:s_customers) {
+						if(customer.getId()==customerID) {
+							customer.setPhotoPath(uri);
+							return customer;
+						}
+					}
+			} 
+			catch (IOException e) {
+				return new QuickResponse(e.getMessage());
+			}
+
+		}
+		
+		return new QuickResponse("No Customer with iD "+customerID);
+	}
+	public IResponse CreateCustomer(String name, String surname,String email) {
+		Customer customer = new Customer(s_count++,name,surname,email);
 		s_customers.add(customer);
 		
 		return customer;
@@ -45,13 +63,22 @@ public class CustomerDaoService {
 		for(Customer customer:s_customers) {
 			if(customer.getId()==id) {
 				s_customers.remove(customer);
-				return new QuickResponse("Deleted user "+id);
+				return new QuickResponse("Deleted customer "+id);
 			}
 		}
 		
 		return new QuickResponse("Customer not found");
 	}
 	
+	public boolean doesCustomerExist(int id) {
+		for(Customer customer:s_customers) {
+			if(customer.getId()==id) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 	public IResponse GetCustomerDetails(int id) {
 		for(Customer customer:s_customers) {
 			if(customer.getId() == id) {

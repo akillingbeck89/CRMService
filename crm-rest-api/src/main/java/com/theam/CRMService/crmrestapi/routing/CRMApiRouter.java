@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.theam.CRMService.crmrestapi.controllers.CRMController;
 import com.theam.CRMService.crmrestapi.models.IResponse;
@@ -22,7 +23,6 @@ public class CRMApiRouter {
 	* 
 	* */
 	
-	//TODO: Add pageination
 	@GetMapping("/api/getCustomers")
 	public IResponse GetCustomers(@RequestParam Integer start, @RequestParam Integer stride) {
 		
@@ -36,8 +36,8 @@ public class CRMApiRouter {
 	}
 
 	@PostMapping("/api/createCustomer")
-	public IResponse CreateCustomer(@RequestParam String name, @RequestParam String surname ) {
-		return Controller.CreateCustomer(name, surname);
+	public IResponse CreateCustomer(@RequestParam String name, @RequestParam String surname,@RequestParam String email) {
+		return Controller.CreateCustomer(name, surname,email);
 	}
 
 	@DeleteMapping("/api/deleteCustomer/{customerID}")
@@ -49,8 +49,8 @@ public class CRMApiRouter {
 		return Controller.UpdateCustomer(customerID, name,surname);
 	}
 	@PutMapping("/api/uploadPhoto/{customerID}")
-	public IResponse UploadImage(@PathVariable String customerID, @RequestParam String file) {
-		return Controller.UploadImage(customerID, file);
+	public IResponse UploadImage(@PathVariable Integer customerID, @RequestParam MultipartFile file) {
+		return Controller.UploadCustomerPhoto(customerID, file);
 	}
 	
 	/*
