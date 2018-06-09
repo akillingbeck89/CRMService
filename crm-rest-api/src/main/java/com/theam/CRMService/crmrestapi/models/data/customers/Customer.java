@@ -2,9 +2,7 @@ package com.theam.CRMService.crmrestapi.models.data.customers;
 
 import java.net.URL;
 
-import com.theam.CRMService.crmrestapi.models.IResponse;
-
-public class Customer implements IResponse{
+public class Customer{
 	private Integer m_id;
 	private String m_foreName;
 	private String m_surName;
@@ -12,6 +10,9 @@ public class Customer implements IResponse{
 	private String m_email;
 	
 
+	protected Customer() {
+		
+	}
 	public Customer(Integer id, String foreName, String surName,String email) {
 		m_id = id;
 		m_foreName = foreName;

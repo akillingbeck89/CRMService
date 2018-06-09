@@ -1,14 +1,16 @@
 package com.theam.CRMService.crmrestapi.models.data.Users;
 
-import com.theam.CRMService.crmrestapi.models.IResponse;
 
 //A user can have access to a limited number of API functionality
-public class User implements IResponse {
+public class User{
 	private int m_id;
 	private String m_userName;
 	private String m_passWord;
 	private boolean m_hasAdminRights;
 	
+	protected User() {
+		
+	}
 	
 	public User(int id, String userName, String passWord,Boolean hasAdminRights) {
 		m_id = id;

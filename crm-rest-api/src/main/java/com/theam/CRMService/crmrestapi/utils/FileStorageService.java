@@ -39,6 +39,24 @@ public class FileStorageService {
 			throw ioe;
 		}
 	}
+	
+	public boolean deleteFile(URI path) {
+		Resource r;
+		try {
+			r = new UrlResource(path);
+			
+			Files.deleteIfExists(r.getFile().toPath());
+			
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			return false;
+		}
+		
+		return true;
+		
+	}
  
 	public Resource loadFromPath(URI path) {
 		try {

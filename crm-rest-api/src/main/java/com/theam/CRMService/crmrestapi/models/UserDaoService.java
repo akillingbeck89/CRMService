@@ -1,70 +1,74 @@
 package com.theam.CRMService.crmrestapi.models;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.theam.CRMService.crmrestapi.models.data.Users.User;
 import com.theam.CRMService.crmrestapi.models.data.Users.Users;
-import com.theam.CRMService.crmrestapi.models.IResponse;
 
 @Service
 public class UserDaoService {
 	
 	private static List<User> s_users = new ArrayList<User>();
 	private static int s_count = 0;
-	public IResponse CreateUser(String username,String password,boolean giveAdminRights) {
+	public ResponseEntity<Object> CreateUser(User puser) {
 		
-		User user = new User(++s_count,username,password,giveAdminRights);
+		User user = new User(s_count++,puser.getUserName(),puser.getPassWord(),puser.getHasAdminRights());
 		s_users.add(user);
 		
-		return user;
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(user.getId()).toUri();
+		return ResponseEntity.created(location).build();
 	}
 	
 	/*TO REPLACE WITH ACTUAL DB*/
-	public IResponse GetUsers(int start,int stride){
+	public ResponseEntity<Object> GetUsers(int start,int stride){
+
 		try {
-		return new Users(s_users.subList(start, start+stride));
+		return ResponseEntity.ok(new Users(s_users.subList(start, start+stride)));
 		}
 		catch(IndexOutOfBoundsException e) {
-			return new QuickResponse("Not enough users");
+			return ResponseEntity.noContent().build();
 		}
 	}
 
-	public IResponse DeleteUser(int id) {
+	public ResponseEntity<Object> DeleteUser(int id) {
 		for(User user:s_users) {
 			if(user.getId()==id) {
 				s_users.remove(user);
-				return new QuickResponse("Deleted User "+id);
+				return ResponseEntity.accepted().body(user);
 			}
 		}
 		
-		return new QuickResponse("User not found");
+		return ResponseEntity.notFound().build();
 	}
-	public IResponse PromoteUser(int id,int to) {
+	public ResponseEntity<Object> PromoteUser(int id,int to) {
 		for(User user:s_users) {
 			if(user.getId()==id) {
 				user.setHasAdminRights(to > 0);
-				return user;
+				return ResponseEntity.ok(user);
 			}
 		}
 		
-		return new QuickResponse("Customer not found");
+		return ResponseEntity.notFound().build();
 	}
 
-	public IResponse UpdateUser(int id, String username, String password,boolean giveAdminRights) {
+	public ResponseEntity<Object> UpdateUser(int id, String username, String password,boolean giveAdminRights) {
+
 		for(User user:s_users) {
-			if(user.getId()==id) {
+		if(user.getId()==id) {
 				user.setUserName(username != null ? username : user.getUserName());
 				user.setPassWord(password != null ? password : user.getPassWord());
 				user.setHasAdminRights(giveAdminRights);
-				return user;
+				return ResponseEntity.ok().body(user);
 			}
 		}
 		
-		return new QuickResponse("Customer not found");
+		return ResponseEntity.notFound().build();
 	}
 
 }

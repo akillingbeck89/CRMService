@@ -3,13 +3,15 @@ package com.theam.CRMService.crmrestapi.controllers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.theam.CRMService.crmrestapi.models.CustomerDaoService;
-import com.theam.CRMService.crmrestapi.models.IResponse;
-import com.theam.CRMService.crmrestapi.models.QuickResponse;
 import com.theam.CRMService.crmrestapi.models.UserDaoService;
+import com.theam.CRMService.crmrestapi.models.data.Users.User;
+import com.theam.CRMService.crmrestapi.models.data.customers.Customer;
 
 @Component
 public class CRMController {
@@ -21,45 +23,48 @@ public class CRMController {
 	private UserDaoService UserService;
 
 
-	public IResponse GetCustomers(Integer startIndex,Integer limit) {
+	public ResponseEntity<Object> GetCustomers(Integer startIndex,Integer limit) {
 		
 		return CustomerService.GetCustomers(startIndex,limit);
 	}
 	
-	public IResponse GetCustomerDetails(Integer customerID) {
-		return CustomerService.GetCustomerDetails(customerID);
+	public ResponseEntity<Object> GetCustomerDetails(int id) {
+		return CustomerService.GetCustomerDetails(id);
 	}
 	
-	public IResponse CreateCustomer(String name, String surname,String email) {
+	public ResponseEntity<Object> CreateCustomer(Customer customer) {
 		
-		return CustomerService.CreateCustomer(name, surname,email);
+		return CustomerService.CreateCustomer(customer.getForeName(), customer.getSurName(),customer.getEmail());
 	}
 	
-	public IResponse DeleteCustomer(Integer customerID) {
-		return CustomerService.DeleteCustomer(customerID);
+	public ResponseEntity<Object> DeleteCustomer(int id) {
+		return CustomerService.DeleteCustomer(id);
 	}
-	public IResponse UpdateCustomer(Integer customerID, String name,String surname) {
-		return CustomerService.UpdateCustomer(customerID, name, surname);
+	public ResponseEntity<Object> UpdateCustomer(int id, Customer customer) {
+		return CustomerService.UpdateCustomer(id, customer.getForeName(), customer.getSurName());
 	}
 	
-	public IResponse UploadCustomerPhoto(Integer customerID, MultipartFile file) {
+	public ResponseEntity<Object> UploadCustomerPhoto(int id, MultipartFile file) {
 		
-		return CustomerService.UpdateCustomerPhoto(customerID, file);
+		return CustomerService.UpdateCustomerPhoto(id, file);
+	}
+	public ResponseEntity<Object> DeleteCustomerPhoto(int id){
+		return CustomerService.DeleteCustomerPhoto(id);
 	}
 	
 	
-	public IResponse CreateUser(String username, String password,boolean giveAdminRights) {
-		return UserService.CreateUser(username, password,giveAdminRights);
-	}
-
-	public IResponse DeleteUser(Integer userID) {
-		return UserService.DeleteUser(userID);
+	public ResponseEntity<Object> CreateUser(User user) {
+		return UserService.CreateUser(user);
 	}
 	
-	public IResponse UpdateUser(Integer userID ,String username,String password,Boolean giveAdminRights) {
-		return UserService.UpdateUser(userID, username, password, giveAdminRights);
+	public ResponseEntity<Object> DeleteUser(int id) {
+		return UserService.DeleteUser(id);
 	}
-	public IResponse GetUsers(Integer start, Integer stride) {
+	
+	public ResponseEntity<Object> UpdateUser(int id, User user) {
+		return UserService.UpdateUser(id, user.getUserName(), user.getPassWord(), user.getHasAdminRights());
+	}
+	public ResponseEntity<Object> GetUsers(Integer start, Integer stride) {
 		return UserService.GetUsers(start, stride);
 	}
 	

@@ -2,9 +2,7 @@ package com.theam.CRMService.crmrestapi.models.data.Users;
 
 import java.util.List;
 
-import com.theam.CRMService.crmrestapi.models.IResponse;
-
-public class Users implements IResponse {
+public class Users {
 private List<User> m_users;
 	
 	public Users(List<User> users) {

@@ -6,8 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.theam.CRMService.crmrestapi.models.data.customers.Customer;
 import com.theam.CRMService.crmrestapi.models.data.customers.Customers;
@@ -23,51 +27,70 @@ public class CustomerDaoService {
 	private static Integer s_count = 0;
 
 	/*TO REPLACE WITH ACTUAL DB*/
-	public IResponse GetCustomers(int start,int stride){
+	public ResponseEntity<Object> GetCustomers(int start,int stride){
 		try {
-		return new Customers(s_customers.subList(start, start+stride));
+			return ResponseEntity.ok().body(new Customers(s_customers.subList(start, start+stride)));
 		}
 		catch(IndexOutOfBoundsException e) {
-			return new QuickResponse("Not enough customers");
+			return ResponseEntity.noContent().build();
 		}
 	}
 	
-	public IResponse UpdateCustomerPhoto(int customerID,MultipartFile file) {
+	public ResponseEntity<Object> DeleteCustomerPhoto(int customerID){
+		if(doesCustomerExist(customerID)) {
+			for(Customer customer:s_customers) {
+				if(customer.getId()==customerID) {
+					try {
+						FileStorage.deleteFile(customer.getPhotoPath().toURI());
+						customer.setPhotoPath(null);
+						return ResponseEntity.accepted().build();
+					}
+					catch(Exception e) {
+						return ResponseEntity.badRequest().build();
+					}
+				}
+			}
+			
+		}
 		
+		return ResponseEntity.noContent().build();
+	}
+	public ResponseEntity<Object> UpdateCustomerPhoto(int customerID,MultipartFile file) {
 		if(doesCustomerExist(customerID)) {
 			try {
 					URI uri = FileStorage.store(file,"customers",String.valueOf(customerID));
 					for(Customer customer:s_customers) {
 						if(customer.getId()==customerID) {
 							customer.setPhotoPath(uri.toURL());
-							return customer;
+							return ResponseEntity.created(uri).build();
 						}
 					}
 			} 
 			catch (IOException e) {
-				return new QuickResponse(e.getMessage());
+				return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
 			}
 
 		}
 		
-		return new QuickResponse("No Customer with iD "+customerID);
+		return ResponseEntity.notFound().build();
 	}
-	public IResponse CreateCustomer(String name, String surname,String email) {
+	public ResponseEntity<Object> CreateCustomer(String name, String surname,String email) {
 		Customer customer = new Customer(s_count++,name,surname,email);
 		s_customers.add(customer);
-		
-		return customer;
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(customer.getId()).toUri();
+		return ResponseEntity.created(location).build();
+	
 	}
 
-	public IResponse DeleteCustomer(int id) {
+	public ResponseEntity<Object> DeleteCustomer(int id) {
 		for(Customer customer:s_customers) {
 			if(customer.getId()==id) {
 				s_customers.remove(customer);
-				return new QuickResponse("Deleted customer "+id);
+				return ResponseEntity.accepted().body(customer);
 			}
 		}
-		
-		return new QuickResponse("Customer not found");
+
+		return ResponseEntity.notFound().build();
 	}
 	
 	public boolean doesCustomerExist(int id) {
@@ -79,26 +102,25 @@ public class CustomerDaoService {
 		
 		return false;
 	}
-	public IResponse GetCustomerDetails(int id) {
+	public ResponseEntity<Object> GetCustomerDetails(int id) {
 		for(Customer customer:s_customers) {
 			if(customer.getId() == id) {
-				return customer;
+				return ResponseEntity.ok(customer);
 			}
 		}
-		
-		return new QuickResponse("Customer not found");
+		return ResponseEntity.notFound().build();
 	}
 	
-	public IResponse UpdateCustomer(int id, String name, String surname) {
+	public ResponseEntity<Object> UpdateCustomer(int id, String name, String surname) {
 		for(Customer customer:s_customers) {
 			if(customer.getId()==id) {
 				customer.setSurName(surname != null ? surname : customer.getSurName());
 				customer.setForeName(name != null ? name : customer.getForeName());
 				
-				return customer;
+				return ResponseEntity.ok(customer);
 			}
 		}
 		
-		return new QuickResponse("Customer not found");
+		return ResponseEntity.notFound().build();
 	}
 }
