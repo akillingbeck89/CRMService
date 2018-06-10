@@ -2,8 +2,10 @@ package com.theam.CRMService.crmrestapi.exceptions;
 
 import java.time.LocalDateTime;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -89,5 +91,14 @@ public class CRMExceptionHandler extends ResponseEntityExceptionHandler {
 		
 		return new ResponseEntity<Object>(response,HttpStatus.NOT_FOUND);
 		
+	}
+	@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(
+			MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+
+		GlobalExceptionResponse response  = new GlobalExceptionResponse("Validation Failed",ex.getBindingResult().getFieldError().getDefaultMessage(),
+				LocalDateTime.now());
+		
+		return new ResponseEntity<Object>(response,HttpStatus.BAD_REQUEST);
 	}
 }

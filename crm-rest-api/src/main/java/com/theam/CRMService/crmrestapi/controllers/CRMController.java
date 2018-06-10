@@ -2,6 +2,8 @@ package com.theam.CRMService.crmrestapi.controllers;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,7 +34,7 @@ public class CRMController {
 	* */
 	
 	@PostMapping("/api/customers")
-	public ResponseEntity<Customer> CreateCustomer(@RequestBody Customer customer) {
+	public ResponseEntity<Customer> CreateCustomer(@Valid @RequestBody Customer customer) {
 		return CustomerService.CreateCustomer(customer);
 	}
 	@GetMapping("/api/customers")
@@ -52,7 +54,7 @@ public class CRMController {
 	}
 	
 	@PutMapping("/api/customers/{id}")
-	public Customer UpdateCustomer(@PathVariable long id,@RequestBody Customer customer) {
+	public Customer UpdateCustomer(@PathVariable long id,@Valid @RequestBody Customer customer) {
 		
 		return CustomerService.UpdateCustomer(id,customer);
 	}
@@ -71,7 +73,7 @@ public class CRMController {
 	 * 
 	 */
 	@PostMapping("/api/users")
-	public ResponseEntity<User> CreateUser(@RequestBody User user) {
+	public ResponseEntity<User> CreateUser(@Valid @RequestBody User user) {
 		return UserService.CreateUser(user);
 	}
 	
@@ -80,7 +82,7 @@ public class CRMController {
 		UserService.DeleteUser(id);
 	}
 	@PutMapping("/api/users/{id}")
-	public User UpdateUser(@PathVariable long id, @RequestBody User user) {
+	public User UpdateUser(@PathVariable long id, @Valid @RequestBody User user) {
 		return UserService.UpdateUser(id,user);
 	}
 	

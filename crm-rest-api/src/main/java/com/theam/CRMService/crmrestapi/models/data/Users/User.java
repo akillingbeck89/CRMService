@@ -3,8 +3,8 @@ package com.theam.CRMService.crmrestapi.models.data.Users;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @Entity
@@ -14,9 +14,12 @@ public class User{
 	@GeneratedValue
 	private long m_id;
 	
+	@Size(min=3,message = "Name must be at least 3 characters long")
 	private String m_userName;
-
+	
+	@Size(min=4,message="Password must be at least 4 characters long")
 	private String m_passWord;
+	
 	private boolean m_hasAdminRights;
 	
 	protected User() {
@@ -49,7 +52,7 @@ public class User{
 	public void setUserName(String userName) {
 		m_userName = userName;
 	}
-	@JsonIgnore
+
 	public String getPassWord() {
 		return m_passWord;
 	}

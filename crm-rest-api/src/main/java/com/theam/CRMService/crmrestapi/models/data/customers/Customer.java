@@ -5,6 +5,8 @@ import java.net.URL;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Size;
 
 
 
@@ -14,9 +16,12 @@ public class Customer{
 	@Id
 	@GeneratedValue
 	private long m_id;
+	@Size(min=3,message="First name must be at least 3 characters long")
 	private String m_foreName;
+	@Size(min=3,message="Last name must be at least 3 characters long")
 	private String m_surName;
 	private URL m_photoPath;
+	@Email(message="Must be a valid email")
 	private String m_email;
 	
 	protected Customer() {
