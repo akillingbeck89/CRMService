@@ -1,11 +1,17 @@
 package com.theam.CRMService.crmrestapi.controllers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.theam.CRMService.crmrestapi.models.CustomerDaoService;
@@ -13,59 +19,74 @@ import com.theam.CRMService.crmrestapi.models.UserDaoService;
 import com.theam.CRMService.crmrestapi.models.data.Users.User;
 import com.theam.CRMService.crmrestapi.models.data.customers.Customer;
 
-@Component
+@RestController
 public class CRMController {
 	
-	Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	@Autowired
 	private CustomerDaoService CustomerService;
 	@Autowired
 	private UserDaoService UserService;
-
-
-	public ResponseEntity<Object> GetCustomers(Integer startIndex,Integer limit) {
-		
-		return CustomerService.GetCustomers(startIndex,limit);
-	}
+	/*
+	* 			User authorised API calls
+	* 
+	* */
 	
-	public ResponseEntity<Object> GetCustomerDetails(long id) {
-		return CustomerService.GetCustomerDetails(id);
-	}
-	
-	public ResponseEntity<Object> CreateCustomer(Customer customer) {
-		
+	@PostMapping("/api/customers")
+	public ResponseEntity<Customer> CreateCustomer(@RequestBody Customer customer) {
 		return CustomerService.CreateCustomer(customer);
 	}
-	
-	public ResponseEntity<Object> DeleteCustomer(long id) {
-		return CustomerService.DeleteCustomer(id);
-	}
-	public ResponseEntity<Object> UpdateCustomer(long id, Customer customer) {
-		return CustomerService.UpdateCustomer(id, customer.getForeName(), customer.getSurName());
-	}
-	
-	public ResponseEntity<Object> UploadCustomerPhoto(long id, MultipartFile file) {
+	@GetMapping("/api/customers")
+	public List<Customer> GetCustomers(@RequestParam Integer start, @RequestParam Integer stride) {
 		
+		return CustomerService.GetCustomers(start,stride);
+	}
+
+	@GetMapping("/api/customers/{id}")
+	public Customer GetCustomerDetails(@PathVariable long id) {
+		
+		return CustomerService.GetCustomerDetails(id);
+	}
+	@DeleteMapping("/api/customers/{id}")
+	public void DeleteCustomer(@PathVariable long id) {
+		CustomerService.DeleteCustomer(id);
+	}
+	
+	@PutMapping("/api/customers/{id}")
+	public Customer UpdateCustomer(@PathVariable long id,@RequestBody Customer customer) {
+		
+		return CustomerService.UpdateCustomer(id,customer);
+	}
+	@PutMapping("/api/customers/{id}/photo")
+	public ResponseEntity<Object> UploadImage(@PathVariable long id, @RequestParam MultipartFile file) {
 		return CustomerService.UpdateCustomerPhoto(id, file);
 	}
-	public ResponseEntity<Object> DeleteCustomerPhoto(long id){
-		return CustomerService.DeleteCustomerPhoto(id);
+	@DeleteMapping("/api/customers/{id}/photo")
+	public void DeleteImage(@PathVariable long id){
+		CustomerService.DeleteCustomerPhoto(id);
 	}
 	
-	
-	public ResponseEntity<Object> CreateUser(User user) {
+	/*
+				Admin authorised API calls
+	 * 
+	 * 
+	 */
+	@PostMapping("/api/users")
+	public ResponseEntity<User> CreateUser(@RequestBody User user) {
 		return UserService.CreateUser(user);
 	}
 	
-	public ResponseEntity<Object> DeleteUser(long id) {
-		return UserService.DeleteUser(id);
+	@DeleteMapping("/api/users/{id}")
+	public void DeleteUser(@PathVariable long id) {
+		UserService.DeleteUser(id);
+	}
+	@PutMapping("/api/users/{id}")
+	public User UpdateUser(@PathVariable long id, @RequestBody User user) {
+		return UserService.UpdateUser(id,user);
 	}
 	
-	public ResponseEntity<Object> UpdateUser(long id, User user) {
-		return UserService.UpdateUser(id, user.getUserName(), user.getPassWord(), user.getHasAdminRights());
+	@GetMapping("/api/users")
+	public List<User> GetUsers(@RequestParam Integer start, @RequestParam Integer stride) {
+		return UserService.GetUsers(start,stride);
 	}
-	public ResponseEntity<Object> GetUsers(Integer start, Integer stride) {
-		return UserService.GetUsers(start, stride);
-	}
-	
+
 }

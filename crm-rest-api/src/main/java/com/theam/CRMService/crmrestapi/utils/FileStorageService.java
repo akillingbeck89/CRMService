@@ -27,6 +27,7 @@ public class FileStorageService {
 			Path relative = this.rootLocation.resolve(rootFolder).resolve(subFolder);
 			log.debug("RelativePath: " + relative);
 			try {
+				
 				CreateDirIfNotExists(relative);
 			}
 			catch(IOException ioe) {
@@ -78,6 +79,7 @@ public class FileStorageService {
 	}
  
 	private void CreateDirIfNotExists(Path path) throws IOException {
+		
 		if(Files.notExists(path)) {
 			try {
 				Files.createDirectories(path);

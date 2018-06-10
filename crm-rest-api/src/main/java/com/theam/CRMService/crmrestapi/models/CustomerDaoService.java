@@ -1,126 +1,118 @@
 package com.theam.CRMService.crmrestapi.models;
 
-import java.io.IOException;
 import java.net.URI;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.theam.CRMService.crmrestapi.exceptions.internal.CustomerNotFoundException;
+import com.theam.CRMService.crmrestapi.exceptions.internal.DeletePhotoException;
+import com.theam.CRMService.crmrestapi.exceptions.internal.NoPageContentException;
+import com.theam.CRMService.crmrestapi.exceptions.internal.UploadPhotoException;
+import com.theam.CRMService.crmrestapi.exceptions.internal.WrongInputException;
 import com.theam.CRMService.crmrestapi.models.data.customers.Customer;
+import com.theam.CRMService.crmrestapi.models.repository.CustomerRepository;
 import com.theam.CRMService.crmrestapi.utils.FileStorageService;
 
-@Repository
-@Transactional
 @Component
 public class CustomerDaoService {
+	Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	
 	@Autowired
 	private FileStorageService FileStorage;
-	Logger log = LoggerFactory.getLogger(this.getClass().getName());
-	@PersistenceContext
-	private EntityManager m_entityManager;
+	
+	@Autowired
+	private CustomerRepository Repository;
 
-	public ResponseEntity<Object> GetCustomers(int start,int stride){
-		try {
-			Query query = m_entityManager.createQuery("SELECT customer FROM Customer customer").setFirstResult(start).setMaxResults(stride);
-			return ResponseEntity.ok(query.getResultList());
+	public List<Customer> GetCustomers(int start,int stride){
+		
+		Page<Customer> page = Repository.findAll(PageRequest.of(start, stride));
+		
+		if(page.hasContent()) {
+			return page.getContent();
 		}
-		catch(Exception e) {
-			return ResponseEntity.noContent().build();
-		}
+		throw new NoPageContentException(String.format("No Customers Pages %d-%d", start,stride));
 	}
 	
-	public ResponseEntity<Object> DeleteCustomerPhoto(long customerID){
+	public void DeleteCustomerPhoto(long customerID){
+		
+		Optional<Customer> customer = Repository.findById(customerID);
+		if(customer.isPresent()) {
 			try {
-				Customer customer = (Customer)m_entityManager.find(Customer.class, customerID);
-				try {
-					FileStorage.deleteFile(customer.getPhotoPath().toURI());
-					customer.setPhotoPath(null);
-					return ResponseEntity.accepted().build();
-				}
-				catch(Exception e) {
-					return ResponseEntity.badRequest().build();
-				}
+				FileStorage.deleteFile(customer.get().getPhotoPath().toURI());
+				customer.get().setPhotoPath(null);
+				Repository.save(customer.get());
+				return;
 			}
 			catch(Exception e) {
-				return ResponseEntity.badRequest().build();
+				throw new DeletePhotoException(e);
 			}
-
+		}
+		throw new CustomerNotFoundException(customerID);
 	}
 	public ResponseEntity<Object> UpdateCustomerPhoto(long customerID,MultipartFile file) {
 		
-		try {
-			Customer customer = (Customer)m_entityManager.find(Customer.class, customerID);
+		Optional<Customer> customer = Repository.findById(customerID);
+		if(customer.isPresent()) {
 			try {
 				URI uri = FileStorage.store(file,"customers",String.valueOf(customerID));
-				customer.setPhotoPath(uri.toURL());
+				customer.get().setPhotoPath(uri.toURL());
+				Repository.save(customer.get());
 				return ResponseEntity.created(uri).build();
 			}
-			catch(IOException e) {
-				return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+			catch(Exception e) {
+				throw new UploadPhotoException(file.getOriginalFilename(),customerID,e);
 			}
 		}
-		catch(Exception e) {
-			return ResponseEntity.badRequest().build();
-		}
+		
+		throw new CustomerNotFoundException(customerID);
 	}
-	public ResponseEntity<Object> CreateCustomer(Customer customer) {
+	public ResponseEntity<Customer> CreateCustomer(Customer customer) {
 		try {
-			m_entityManager.persist(customer);
+			Repository.save(customer);
 			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(customer.getId()).toUri();
 			
 			return ResponseEntity.created(location).build();
 		}
-		catch(Exception e) {
-			return ResponseEntity.badRequest().build();
+		catch(IllegalArgumentException e) {
+			throw new WrongInputException("Input was not a customer");
 		}
 	}
 
-	public ResponseEntity<Object> DeleteCustomer(long id) {
+	public void DeleteCustomer(long id) {
+		if(Repository.existsById(id)) {
+			Repository.deleteById(id);
+			return;
+		}
+		throw new CustomerNotFoundException(id);
+	}
+	
+	public Customer GetCustomerDetails(long id) {
+		Optional<Customer> customer = Repository.findById(id);
+		if(customer.isPresent()) {
+			return customer.get();
+		}
 		
-		try {
-			Customer customer = (Customer)m_entityManager.find(Customer.class, id);
-			m_entityManager.remove(customer);
-			return ResponseEntity.accepted().build();
-		}
-		catch(IllegalArgumentException e) {
-			return ResponseEntity.notFound().build();
-		}
-	
+		throw new CustomerNotFoundException(id);
 	}
 	
-	public ResponseEntity<Object> GetCustomerDetails(long id) {
-		try {
-			Customer customer = (Customer)m_entityManager.find(Customer.class, id);
-			return ResponseEntity.ok(customer);
+	public Customer UpdateCustomer(long id, Customer pCustomer) {
+		Optional<Customer> customer = Repository.findById(id);
+		if(customer.isPresent()) {
+			customer.get().setForeName(pCustomer.getForeName());
+			customer.get().setSurName(pCustomer.getSurName());
+			Repository.save(customer.get());
+			return customer.get();
 		}
-		catch(IllegalArgumentException e) {
-			return ResponseEntity.notFound().build();
-		}
-	}
-	
-	public ResponseEntity<Object> UpdateCustomer(long id, String name, String surname) {
-
-		try {
-			Customer customer= (Customer)m_entityManager.find(Customer.class, id);
-			customer.setForeName(customer != null ? name : customer.getForeName());
-			customer.setSurName(customer != null ? surname : customer.getSurName());
-			return ResponseEntity.ok().body(customer);
-		}
-		catch(Exception e) {
-			return ResponseEntity.notFound().build();
-		}
+		throw new CustomerNotFoundException(id);
 	}
 }

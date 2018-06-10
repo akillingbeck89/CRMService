@@ -5,7 +5,8 @@ import java.net.URL;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Table;
+
+
 
 @Entity
 public class Customer{
@@ -18,7 +19,6 @@ public class Customer{
 	private URL m_photoPath;
 	private String m_email;
 	
-
 	protected Customer() {
 		
 	}
@@ -62,7 +62,7 @@ public class Customer{
 	public void setSurName(String surName) {
 		m_surName = surName;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "Customer [m_id=" + m_id + ", m_foreName=" + m_foreName + ", m_surName=" + m_surName + "]";

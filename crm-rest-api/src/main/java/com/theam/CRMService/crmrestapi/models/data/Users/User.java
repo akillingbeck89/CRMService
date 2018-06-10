@@ -2,9 +2,10 @@ package com.theam.CRMService.crmrestapi.models.data.Users;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 public class User{
@@ -14,6 +15,7 @@ public class User{
 	private long m_id;
 	
 	private String m_userName;
+
 	private String m_passWord;
 	private boolean m_hasAdminRights;
 	
@@ -47,6 +49,7 @@ public class User{
 	public void setUserName(String userName) {
 		m_userName = userName;
 	}
+	@JsonIgnore
 	public String getPassWord() {
 		return m_passWord;
 	}

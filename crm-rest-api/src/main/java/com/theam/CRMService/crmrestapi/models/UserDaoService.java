@@ -1,79 +1,71 @@
 package com.theam.CRMService.crmrestapi.models;
 
 import java.net.URI;
-import javax.transaction.Transactional;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.theam.CRMService.crmrestapi.exceptions.internal.NoPageContentException;
+import com.theam.CRMService.crmrestapi.exceptions.internal.UserNotFoundException;
+import com.theam.CRMService.crmrestapi.exceptions.internal.WrongInputException;
 import com.theam.CRMService.crmrestapi.models.data.Users.User;
+import com.theam.CRMService.crmrestapi.models.repository.UserRepository;
 
-@Repository
-@Transactional
 @Component
 public class UserDaoService {
 	
 	Logger log = LoggerFactory.getLogger(this.getClass().getName());
-	@PersistenceContext
-	private EntityManager m_entityManager;
+	@Autowired
+	private UserRepository Repository;
 
-	public ResponseEntity<Object> CreateUser(User puser) {
-		
+	public ResponseEntity<User> CreateUser(User user) {
 		try {
-			m_entityManager.persist(puser);
-			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(puser.getId()).toUri();
+			Repository.save(user);
+			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(user.getId()).toUri();
 			
 			return ResponseEntity.created(location).build();
 		}
-		catch(Exception e) {
-			return ResponseEntity.badRequest().build();
-		}
-
-	}
-
-	public ResponseEntity<Object> GetUsers(int start,int stride){
-
-		try {
-			Query query = m_entityManager.createQuery("SELECT user FROM User user").setFirstResult(start).setMaxResults(stride);
-			return ResponseEntity.ok(query.getResultList());
-		}
-		catch(Exception e) {
-			return ResponseEntity.noContent().build();
-		}
-	}
-
-	public ResponseEntity<Object> DeleteUser(long id) {
-		
-		try {
-			User user = (User)m_entityManager.find(User.class, id);
-			m_entityManager.remove(user);
-			return ResponseEntity.accepted().build();
-		}
 		catch(IllegalArgumentException e) {
-			return ResponseEntity.notFound().build();
+			throw new WrongInputException("Input was not a user");
 		}
+	}
+
+	public List<User> GetUsers(int start,int stride){
+		Page<User> page = Repository.findAll(PageRequest.of(start, stride));
+		
+		if(page.hasContent()) {
+			return page.getContent();
+		}
+		throw new NoPageContentException(String.format("No User Pages %d-%d", start,stride));
+	}
+
+	public void DeleteUser(long id) {
+		
+		if(Repository.existsById(id)) {
+			Repository.deleteById(id);
+			return;
+		}
+		throw new UserNotFoundException(id);
 	
 	}
 
-	public ResponseEntity<Object> UpdateUser(long id, String username, String password,boolean giveAdminRights) {
-
-		try {
-			User user= (User)m_entityManager.find(User.class, id);
-			user.setUserName(username != null ? username : user.getUserName());
-			user.setPassWord(password != null ? password : user.getPassWord());
-			user.setHasAdminRights(giveAdminRights);
-			return ResponseEntity.ok().body(user);
+	public User UpdateUser(long id, User pUser) {
+		Optional<User> user = Repository.findById(id);
+		if(user.isPresent()) {
+			user.get().setUserName(pUser.getUserName());
+			user.get().setHasAdminRights(pUser.getHasAdminRights());
+			Repository.save(user.get());
+			return user.get();
 		}
-		catch(Exception e) {
-			return ResponseEntity.notFound().build();
-		}
+		throw new UserNotFoundException(id);
 
 	}
 
