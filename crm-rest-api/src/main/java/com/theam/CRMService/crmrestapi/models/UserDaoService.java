@@ -60,8 +60,8 @@ public class UserDaoService {
 	public User UpdateUser(long id, User pUser) {
 		Optional<User> user = Repository.findById(id);
 		if(user.isPresent()) {
-			user.get().setUserName(pUser.getUserName());
-			user.get().setHasAdminRights(pUser.getHasAdminRights());
+			user.get().setUsername(pUser.getUsername());
+			user.get().setRoles(pUser.getRoles());
 			Repository.save(user.get());
 			return user.get();
 		}

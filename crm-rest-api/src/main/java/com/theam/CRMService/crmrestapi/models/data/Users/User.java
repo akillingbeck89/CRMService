@@ -1,64 +1,95 @@
 package com.theam.CRMService.crmrestapi.models.data.Users;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.validation.constraints.Size;
 
+import com.theam.CRMService.crmrestapi.models.Role;
 
 
-@Entity
-public class User{
+
+@Entity(name="users")
+public class User implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3831350175634992201L;
+
 	@Id
 	@GeneratedValue
-	private long m_id;
+	private int id;
 	
 	@Size(min=3,message = "Name must be at least 3 characters long")
-	private String m_userName;
+	private String username;
 	
 	@Size(min=4,message="Password must be at least 4 characters long")
-	private String m_passWord;
+	private String password;
 	
-	private boolean m_hasAdminRights;
+	@ManyToMany(fetch=FetchType.EAGER,cascade=CascadeType.ALL)
+	@JoinTable(name="users_role", joinColumns= @JoinColumn(name="users_id",referencedColumnName="id"),
+	inverseJoinColumns= @JoinColumn(name="role_id",referencedColumnName="id"))
+    private List<Role> roles = new ArrayList<Role>();
 	
+	private boolean enabled;
 	protected User() {
 		
 	}
-	
-	public User(long id, String userName, String passWord,Boolean hasAdminRights) {
-		m_id = id;
-		m_userName = userName;
-		m_passWord = passWord;
-		m_hasAdminRights = hasAdminRights;
+	public User(int id, String userName, String passWord,boolean enabled) {
+		this.id = id;
+		username = userName;
+		password = passWord;
+		this.enabled = enabled;
 	}
 	
-	public boolean getHasAdminRights() {
-		return m_hasAdminRights;
-	}
-	public void setHasAdminRights(Boolean b) {
-		m_hasAdminRights = b;
-	}
 	
-	public long getId() {
-		return m_id;
+	
+	public boolean isEnabled() {
+		return enabled;
 	}
-	public void setId(long id) {
-		m_id = id;
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
-	public String getUserName() {
-		return m_userName;
+	public int getId() {
+		return id;
 	}
-	public void setUserName(String userName) {
-		m_userName = userName;
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getUsername() {
+		return username;
 	}
 
-	public String getPassWord() {
-		return m_passWord;
+	public void setUsername(String username) {
+		this.username = username;
 	}
-	public void setPassWord(String passWord) {
-		m_passWord = passWord;
+
+	public String getPassword() {
+		return password;
 	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public List<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
+	}
+	
 	
 	
 }

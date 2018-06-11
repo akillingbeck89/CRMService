@@ -16,7 +16,7 @@ public class CrmRestApiApplication implements CommandLineRunner {
 	public static void main(String[] args) {
 		SpringApplication.run(CrmRestApiApplication.class, args);
 	}
-	
+
 	@Override
 	public void run(String... arg) throws Exception {
 		storageService.deleteAll();
