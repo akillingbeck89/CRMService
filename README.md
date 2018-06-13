@@ -13,7 +13,7 @@
 	2. Load all maven dependencies
 	3. Start your local MySQL server
 	4. Update src/main/resource/application.properties
-	5. :shipit:
+	5. Run
 	
 
 ##### Updating application.properties 
