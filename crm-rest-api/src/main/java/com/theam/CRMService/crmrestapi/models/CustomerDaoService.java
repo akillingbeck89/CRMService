@@ -4,8 +4,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,12 +19,12 @@ import com.theam.CRMService.crmrestapi.exceptions.internal.UploadPhotoException;
 import com.theam.CRMService.crmrestapi.exceptions.internal.WrongInputException;
 import com.theam.CRMService.crmrestapi.models.data.customers.Customer;
 import com.theam.CRMService.crmrestapi.models.repository.CustomerRepository;
+import com.theam.CRMService.crmrestapi.security.authentication.CRMUserDetailsService;
 import com.theam.CRMService.crmrestapi.utils.FileStorageService;
 
 @Component
 public class CustomerDaoService {
-	Logger log = LoggerFactory.getLogger(this.getClass().getName());
-	
+
 	@Autowired
 	private FileStorageService FileStorage;
 	
@@ -35,21 +33,27 @@ public class CustomerDaoService {
 
 	public List<Customer> GetCustomers(int start,int stride){
 		
-		Page<Customer> page = Repository.findAll(PageRequest.of(start, stride));
-		
-		if(page.hasContent()) {
-			return page.getContent();
+		if(stride> 0) {
+			Page<Customer> page = Repository.findAll(PageRequest.of(start, stride));
+			
+			if(page.hasContent()) {
+				return page.getContent();
+			}
+			throw new NoPageContentException(String.format("No Customers Pages %d-%d", start,stride));
 		}
-		throw new NoPageContentException(String.format("No Customers Pages %d-%d", start,stride));
+
+		return Repository.findAll();
+	
 	}
 	
-	public void DeleteCustomerPhoto(long customerID){
+	public void DeleteCustomerPhoto(int customerID){
 		
 		Optional<Customer> customer = Repository.findById(customerID);
 		if(customer.isPresent()) {
 			try {
 				FileStorage.deleteFile(customer.get().getPhotoPath().toURI());
 				customer.get().setPhotoPath(null);
+				customer.get().setLastmodifiedby(CRMUserDetailsService.currentUserFromContext());
 				Repository.save(customer.get());
 				return;
 			}
@@ -59,13 +63,14 @@ public class CustomerDaoService {
 		}
 		throw new CustomerNotFoundException(customerID);
 	}
-	public ResponseEntity<Object> UpdateCustomerPhoto(long customerID,MultipartFile file) {
+	public ResponseEntity<Object> UpdateCustomerPhoto(int customerID,MultipartFile file) {
 		
 		Optional<Customer> customer = Repository.findById(customerID);
 		if(customer.isPresent()) {
 			try {
 				URI uri = FileStorage.store(file,"customers",String.valueOf(customerID));
 				customer.get().setPhotoPath(uri.toURL());
+				customer.get().setLastmodifiedby(CRMUserDetailsService.currentUserFromContext());
 				Repository.save(customer.get());
 				return ResponseEntity.created(uri).build();
 			}
@@ -78,8 +83,10 @@ public class CustomerDaoService {
 	}
 	public ResponseEntity<Customer> CreateCustomer(Customer customer) {
 		try {
-			Repository.save(customer);
-			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(customer.getId()).toUri();
+			
+			customer.setCreatedby(CRMUserDetailsService.currentUserFromContext());
+			Customer saved = Repository.save(customer);
+			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(saved.getId()).toUri();
 			
 			return ResponseEntity.created(location).build();
 		}
@@ -88,7 +95,7 @@ public class CustomerDaoService {
 		}
 	}
 
-	public void DeleteCustomer(long id) {
+	public void DeleteCustomer(int id) {
 		if(Repository.existsById(id)) {
 			Repository.deleteById(id);
 			return;
@@ -96,7 +103,7 @@ public class CustomerDaoService {
 		throw new CustomerNotFoundException(id);
 	}
 	
-	public Customer GetCustomerDetails(long id) {
+	public Customer GetCustomerDetails(int id) {
 		Optional<Customer> customer = Repository.findById(id);
 		if(customer.isPresent()) {
 			return customer.get();
@@ -105,13 +112,12 @@ public class CustomerDaoService {
 		throw new CustomerNotFoundException(id);
 	}
 	
-	public Customer UpdateCustomer(long id, Customer pCustomer) {
+	public Customer UpdateCustomer(int id, Customer pCustomer) {
 		Optional<Customer> customer = Repository.findById(id);
 		if(customer.isPresent()) {
-			customer.get().setForeName(pCustomer.getForeName());
-			customer.get().setSurName(pCustomer.getSurName());
-			Repository.save(customer.get());
-			return customer.get();
+			pCustomer.setId(customer.get().getId());
+			pCustomer.setLastmodifiedby(CRMUserDetailsService.currentUserFromContext());
+			return Repository.save(pCustomer);
 		}
 		throw new CustomerNotFoundException(id);
 	}

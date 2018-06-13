@@ -68,15 +68,16 @@ public class CRMSecurityConfig extends WebSecurityConfigurerAdapter {
 		  http.csrf().disable();
 		  
 		  //Login
-		  http.formLogin().loginProcessingUrl("/auth/login");
+		  http.formLogin().loginProcessingUrl("/auth/login").permitAll();
 		  http.formLogin().successHandler(loginSuccessfulHandler).failureHandler(loginFailureHandler);
 		  
 		  //Logout
 		  http.logout().deleteCookies("JSESSIONID").logoutUrl("/auth/logout").logoutSuccessHandler(logoutSuccessfulHandler);
 		  
 		  //Authorisation
-		  http.authorizeRequests().antMatchers("/api/").authenticated();
-		  http.authorizeRequests().antMatchers("/api/users").hasRole("ADMIN").anyRequest().authenticated();
+		  http.authorizeRequests().antMatchers("/api/users/**").hasAuthority("ROLE_ADMIN")
+		  .antMatchers("/api/customers/*").hasAnyAuthority("ROLE_ADMIN","ROLE_USER");
+		
 		  http.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler).authenticationEntryPoint(customAuthenticationEntryPoint);
 		  
 		  http.anonymous().disable();

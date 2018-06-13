@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import com.theam.CRMService.crmrestapi.models.data.Users.User;
 @Repository("userRepository")
-public interface UserRepository extends JpaRepository<User,Long> 
+public interface UserRepository extends JpaRepository<User,Integer> 
 {
 	User findByUsername(String username);
 }

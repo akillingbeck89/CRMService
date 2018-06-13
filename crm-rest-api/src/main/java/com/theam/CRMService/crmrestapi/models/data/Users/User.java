@@ -12,10 +12,15 @@ import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.theam.CRMService.crmrestapi.models.Role;
+import org.hibernate.validator.constraints.SafeHtml;
+import org.hibernate.validator.constraints.SafeHtml.WhiteListType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.theam.CRMService.crmrestapi.models.Role;
 
 
 @Entity(name="users")
@@ -31,9 +36,12 @@ public class User implements Serializable{
 	private int id;
 	
 	@Size(min=3,message = "Name must be at least 3 characters long")
+	@NotNull(message="username: was null")
+	@SafeHtml(whitelistType=WhiteListType.NONE,message="XSS PREVENTION")
 	private String username;
 	
 	@Size(min=4,message="Password must be at least 4 characters long")
+	@SafeHtml(whitelistType=WhiteListType.NONE,message="XSS PREVENTION")
 	private String password;
 	
 	@ManyToMany(fetch=FetchType.EAGER,cascade=CascadeType.ALL)
@@ -41,20 +49,24 @@ public class User implements Serializable{
 	inverseJoinColumns= @JoinColumn(name="role_id",referencedColumnName="id"))
     private List<Role> roles = new ArrayList<Role>();
 	
+//	@OneToMany(mappedBy="roles")
+//	private List<Customer> customerscreated = new ArrayList<Customer>();
+//	private List<Customer> customersmodified = new ArrayList<Customer>();
+
 	private boolean enabled;
 	protected User() {
 		
 	}
 	public User(int id, String userName, String passWord,boolean enabled) {
 		this.id = id;
-		username = userName;
-		password = passWord;
+		this.username = userName;
+		this.password = passWord;
 		this.enabled = enabled;
 	}
 	
 	
 	
-	public boolean isEnabled() {
+	public boolean getEnabled() {
 		return enabled;
 	}
 	public void setEnabled(boolean enabled) {
@@ -74,10 +86,11 @@ public class User implements Serializable{
 		this.username = username;
 	}
 
+	@JsonIgnore
 	public String getPassword() {
 		return password;
 	}
-
+	 @JsonProperty
 	public void setPassword(String password) {
 		this.password = password;
 	}

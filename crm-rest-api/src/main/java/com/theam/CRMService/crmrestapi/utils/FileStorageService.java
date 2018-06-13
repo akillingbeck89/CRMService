@@ -1,6 +1,4 @@
 package com.theam.CRMService.crmrestapi.utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,23 +7,18 @@ import org.springframework.core.io.UrlResource;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.nio.file.CopyOption;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @Service
 public class FileStorageService {
-	Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	private final Path rootLocation = Paths.get("upload-dir");
  
 	public URI store(MultipartFile file,String rootFolder,String subFolder) throws IOException {
 		try {
 			Path relative = this.rootLocation.resolve(rootFolder).resolve(subFolder);
-			log.debug("RelativePath: " + relative);
 			try {
 				
 				CreateDirIfNotExists(relative);

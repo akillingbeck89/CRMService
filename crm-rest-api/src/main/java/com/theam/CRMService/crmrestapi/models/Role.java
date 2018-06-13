@@ -10,6 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
+import org.hibernate.validator.constraints.SafeHtml;
+import org.hibernate.validator.constraints.SafeHtml.WhiteListType;
 import org.springframework.security.core.GrantedAuthority;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,9 +24,10 @@ public class Role implements GrantedAuthority, Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
+	@SafeHtml(whitelistType=WhiteListType.NONE,message="XSS Prevention")
 	private String role;
 
-	@JsonIgnore
+	
 	@ManyToMany(mappedBy="roles")
 	private List<User> users = new ArrayList<User>();
 	
@@ -36,26 +39,29 @@ public class Role implements GrantedAuthority, Serializable{
 		super();
 		this.role = role;
 	}
+	@JsonIgnore
 	public int getId() {
 		return this.id;
 	}
 	public void setId(int id) {
 		this.id = id;
 	}
-	public String getRole() {
-		return role;
-	}
 	public void setRole(String role) {
 		this.role = role;
 	}
-	public List<User> getUser() {
+	public String getRole() {
+		return this.role;
+	}
+	@JsonIgnore
+	public List<User> getUsers() {
 		return users;
 	}
-	public void setUser(List<User> user) {
+	public void setUsers(List<User> user) {
 		this.users = user;
 	}
 	
 	@Override
+	@JsonIgnore
 	public String getAuthority() {
 		return this.role;
 	}

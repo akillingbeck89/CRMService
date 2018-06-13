@@ -44,7 +44,10 @@ public class CRMUserAdapter implements UserDetails{
 	  }
 	  @Override
 	  public boolean isEnabled() {
-	    return true;
+	    return user.getEnabled();
+	  }
+	  public User getUser() {
+		  return user;
 	  }
 
 }

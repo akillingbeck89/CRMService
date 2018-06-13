@@ -1,75 +1,116 @@
 package com.theam.CRMService.crmrestapi.models.data.customers;
 
+import java.io.Serializable;
 import java.net.URL;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.validator.constraints.SafeHtml;
+import org.hibernate.validator.constraints.SafeHtml.WhiteListType;
+
+import com.theam.CRMService.crmrestapi.models.data.Users.User;
 
 
-@Entity
-public class Customer{
+
+@Entity(name="customers")
+public class Customer implements Serializable{
 	
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1264109838117583765L;
 	@Id
 	@GeneratedValue
-	private long m_id;
-	@Size(min=3,message="First name must be at least 3 characters long")
-	private String m_foreName;
-	@Size(min=3,message="Last name must be at least 3 characters long")
-	private String m_surName;
-	private URL m_photoPath;
+	private int id;
+	@Size(min=2,max=64,message="First name must be between 3 and 64 characters long")
+	@NotNull(message="firstname: was null")
+	@SafeHtml(whitelistType=WhiteListType.NONE,message="XSS PREVENTION")
+	private String firstname;
+	@Size(min=3,max=128,message="Last name must be between 3 and 128 characters long")
+	@NotNull(message="lastname: was null")
+	@SafeHtml(whitelistType=WhiteListType.NONE,message="XSS PREVENTION")
+	private String lastname;
+	private URL photoPath;
+
+	@OneToOne
+	private User createdby_user;
+	@OneToOne
+	private User lastmodifiedby_user;
+	
 	@Email(message="Must be a valid email")
-	private String m_email;
+	@NotNull(message="email: was null")
+	@SafeHtml(whitelistType=WhiteListType.NONE,message="XSS PREVENTION")
+	private String email;
 	
 	protected Customer() {
 		
 	}
-	public Customer(long id, String foreName, String surName,String email) {
-		m_id = id;
-		m_foreName = foreName;
-		m_surName = surName;
-		m_email =email;
+	public Customer(int id, String firstname, String lastname,String email) {
+		this.id = id;
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.email =email;
 	}
 
-	public String getEmail() {
-		return m_email;
+	public String getFirstname() {
+		return firstname;
 	}
-	public void setEmail(String email) {
-		m_email = email;
+	
+	public void setFirstname(String firstname) {
+		this.firstname = firstname;
+	}
+	public String getLastname() {
+		return lastname;
+	}
+	
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
 	}
 	public URL getPhotoPath() {
-		return m_photoPath;
+		return photoPath;
 	}
-
 	public void setPhotoPath(URL photoPath) {
-		m_photoPath = photoPath;
-	}
-
-	public long getId() {
-		return m_id;
+		this.photoPath = photoPath;
 	}
 	
-	public void setId(Integer id) {
-		m_id = id;
+	public String getEmail() {
+		return email;
 	}
-	public String getForeName() {
-		return m_foreName;
-	}
-	public void setForeName(String foreName) {
-		m_foreName = foreName;
-	}
-	public String getSurName() {
-		return m_surName;
-	}
-	public void setSurName(String surName) {
-		m_surName = surName;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	public int getId() {
+		return id;
+	}
+	
+	
+	public User getCreatedby() {
+		return createdby_user;
+	}
+	public void setCreatedby(User createdby) {
+		this.createdby_user = createdby;
+	}
+	
+	public User getLastmodifiedby() {
+		return lastmodifiedby_user;
+	}
+	public void setLastmodifiedby(User lastmodifiedby) {
+		this.lastmodifiedby_user = lastmodifiedby;
+	}
 	@Override
 	public String toString() {
-		return "Customer [m_id=" + m_id + ", m_foreName=" + m_foreName + ", m_surName=" + m_surName + "]";
+		return "Customer [m_id=" + this.id + ", m_foreName=" + this.firstname + ", m_surName=" + this.lastname + "]";
 	}
 }
