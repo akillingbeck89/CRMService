@@ -25,7 +25,7 @@ spring.datasource.username | <**your username**>
 spring.datasource.password | <**your password**>
 spring.jpa.hibernate.ddl-auto | <**your ddl configuration**> _currently set =create for testing(Create the schema and destroy previous data)_
 
-#### Authentication
+### Authentication
 ##### Due to our ddl configuration, we use the following code in CRMController to add our super_user:
 ---
 ```Java
@@ -43,7 +43,7 @@ public void init() {
 * So to begin making requests, use: **username=super_user&password=c757b8bf1d6a0e933c98390ce32276f0"**
 * From there, you can start using the API calls.
 
-#### Request-Mappings
+### Request-Mappings
 ---
 ##### All permitted requests
 ---
