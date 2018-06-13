@@ -104,8 +104,8 @@ public class CRMController {
 	}
 	
 	@GetMapping("/users")
-	public List<User> GetUsers(@RequestParam Integer start, @RequestParam Integer stride) {
-		return UserDetailsService.GetUsers(start,stride);
+	public List<User> GetUsers(@RequestParam Optional<Integer> start, @RequestParam Optional<Integer> stride) {
+		return UserDetailsService.GetUsers(start.isPresent() ? start.get() : -1,stride.isPresent() ? stride.get() : -1);
 	}
 
 }

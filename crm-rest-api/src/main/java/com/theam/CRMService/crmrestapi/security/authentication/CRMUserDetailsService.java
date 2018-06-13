@@ -78,12 +78,18 @@ public class CRMUserDetailsService implements UserDetailsService
 		}
 
 		public List<User> GetUsers(int start,int stride){
-			Page<User> page = userRepository.findAll(PageRequest.of(start, stride));
 			
-			if(page.hasContent()) {
-				return page.getContent();
+			if(start > 0 && stride > 0) {
+				Page<User> page = userRepository.findAll(PageRequest.of(start, stride));
+				
+				if(page.hasContent()) {
+					return page.getContent();
+				}
+				throw new NoPageContentException(String.format("No User Pages %d-%d", start,stride));
 			}
-			throw new NoPageContentException(String.format("No User Pages %d-%d", start,stride));
+			
+			return userRepository.findAll();
+		
 		}
 
 		public void DeleteUser(int id) {
